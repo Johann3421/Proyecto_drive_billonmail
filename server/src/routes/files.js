@@ -5,6 +5,7 @@ import fs from 'fs';
 import crypto from 'crypto';
 import { config } from '../config.js';
 import { db } from '../db.js';
+import { requireAuth } from '../auth.js';
 
 const router = Router();
 
@@ -25,8 +26,8 @@ const upload = multer({
   limits: { fileSize: config.maxFileSizeMb * 1024 * 1024 }
 });
 
-// POST /api/files/upload
-router.post('/upload', upload.single('file'), async (req, res) => {
+// POST /api/files/upload (Protegido con requireAuth)
+router.post('/upload', requireAuth, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No se ha adjuntado ningún archivo.' });

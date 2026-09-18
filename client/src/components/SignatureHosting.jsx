@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-export default function SignatureHosting({ onToast }) {
+export default function SignatureHosting({ token, onToast }) {
   const [isUploading, setIsUploading] = useState(false);
   const [currentSignature, setCurrentSignature] = useState(null);
   const [copiedKey, setCopiedKey] = useState(null);
@@ -10,7 +10,9 @@ export default function SignatureHosting({ onToast }) {
 
   // Cargar firmas recientes al montar
   useEffect(() => {
-    fetch('/api/signatures/recent')
+    fetch('/api/signatures/recent', {
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
+    })
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.signatures && data.signatures.length > 0) {
@@ -22,7 +24,7 @@ export default function SignatureHosting({ onToast }) {
         }
       })
       .catch((err) => console.warn('No se pudieron obtener firmas recientes:', err));
-  }, []);
+  }, [token]);
 
   const handleImageUpload = (file) => {
     if (!file) return;
@@ -33,6 +35,7 @@ export default function SignatureHosting({ onToast }) {
 
     fetch('/api/signatures/upload', {
       method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
       body: formData
     })
       .then((res) => res.json())

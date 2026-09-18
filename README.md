@@ -40,6 +40,19 @@ cp .env.example .env
 
 ---
 
+## 🔐 Acceso y Cuenta SuperAdmin
+- **Dominio Oficial:** [https://drive.sekaitech.com.pe](https://drive.sekaitech.com.pe)
+- **SuperAdmin:** `loritox3421@gmail.com`
+- **Contraseña:** `podereterno1`
+- **Flujo para empleados:**
+  1. Los colaboradores solicitan su cuenta desde la pestaña "Solicitar Cuenta".
+  2. Su estado queda como `⏳ Pendiente`.
+  3. El SuperAdmin entra con su cuenta, accede a la pestaña **"3. Aprobación de Usuarios"** y pulsa **Aprobar**.
+  4. Una vez aprobado, el colaborador puede ingresar y utilizar las herramientas.
+  5. Los enlaces de descarga para clientes externos (`/v/:id`) permanecen 100% públicos sin requerir login.
+
+---
+
 ## 🐳 Despliegue en Dokploy (VPS)
 
 ### Opción A: Aplicación Dokploy (Recomendada con Dockerfile)
@@ -47,7 +60,7 @@ cp .env.example .env
 2. Selecciona Build Type: **Dockerfile**.
 3. En la pestaña **Environment**, define:
    - `PORT=3014`
-   - `APP_URL=https://tu-dominio.com`
+   - `APP_URL=https://drive.sekaitech.com.pe`
    - `DATABASE_URL=postgresql://usuario:pass@postgres_host:5432/drive_billonmail`
 4. En la pestaña **Volumes**, mapea para no perder archivos en cada despliegue:
    - Host path: `/var/dokploy/drive/files` $\rightarrow$ Container path: `/app/server/uploads/files`

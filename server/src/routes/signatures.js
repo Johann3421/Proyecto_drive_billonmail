@@ -4,6 +4,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { config } from '../config.js';
 import { db } from '../db.js';
+import { requireAuth } from '../auth.js';
 
 const router = Router();
 
@@ -53,7 +54,7 @@ function generateLinkFormats(filename, originalName, id) {
 }
 
 // POST /api/signatures/upload
-router.post('/upload', upload.single('image'), async (req, res) => {
+router.post('/upload', requireAuth, upload.single('image'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No se ha proporcionado ninguna imagen o GIF.' });
@@ -88,7 +89,7 @@ router.post('/upload', upload.single('image'), async (req, res) => {
 });
 
 // GET /api/signatures/recent - Obtener las últimas firmas alojadas
-router.get('/recent', async (req, res) => {
+router.get('/recent', requireAuth, async (req, res) => {
   try {
     const list = await db.getRecentSignatures(8);
     const enriched = list.map(item => ({

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 
-export default function FileTransfer({ onToast }) {
+export default function FileTransfer({ token, onToast }) {
   const [retentionDays, setRetentionDays] = useState(15);
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -22,6 +22,9 @@ export default function FileTransfer({ onToast }) {
 
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '/api/files/upload', true);
+    if (token) {
+      xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+    }
 
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable) {

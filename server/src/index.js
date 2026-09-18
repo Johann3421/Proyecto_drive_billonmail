@@ -8,6 +8,7 @@ import { initStorage } from './storage.js';
 import { startCleanupCron } from './cron.js';
 import filesRouter from './routes/files.js';
 import signaturesRouter from './routes/signatures.js';
+import authRouter from './routes/auth.js';
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use('/uploads/firmas', express.static(config.paths.uploadsSignatures, {
 }));
 
 // Rutas de API
+app.use('/api/auth', authRouter);
 app.use('/api/files', filesRouter);
 app.use('/api/signatures', signaturesRouter);
 
