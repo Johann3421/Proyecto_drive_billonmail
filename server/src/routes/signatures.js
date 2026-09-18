@@ -53,6 +53,8 @@ function generateLinkFormats(filename, originalName, id) {
   };
 }
 
+import { deleteFileSafe } from '../storage.js';
+
 // POST /api/signatures/upload
 router.post('/upload', requireAuth, upload.single('image'), async (req, res) => {
   try {
@@ -63,6 +65,7 @@ router.post('/upload', requireAuth, upload.single('image'), async (req, res) => 
     const id = crypto.randomBytes(4).toString('hex');
     const signature = await db.saveSignature({
       id,
+      user_id: req.user.id,
       filename: req.file.filename,
       original_name: req.file.originalname,
       mime_type: req.file.mimetype,
@@ -85,6 +88,55 @@ router.post('/upload', requireAuth, upload.single('image'), async (req, res) => 
   } catch (err) {
     console.error('Error al subir firma/GIF:', err);
     return res.status(500).json({ error: err.message || 'Error al procesar la imagen.' });
+  }
+});
+
+// GET /api/signatures/my - Galería de firmas del usuario (o todas si es SuperAdmin con ?all=true)
+router.get('/my', requireAuth, async (req, res) => {
+  try {
+    const isAll = req.query.all === 'true' && req.user.role === 'superadmin';
+    const list = await db.getUserSignatures(req.user.id, isAll);
+
+    const enriched = list.map(item => ({
+      id: item.id,
+      filename: item.filename,
+      originalName: item.original_name,
+      mimeType: item.mime_type,
+      sizeBytes: item.size_bytes,
+      createdAt: item.created_at,
+      ...generateLinkFormats(item.filename, item.original_name, item.id)
+    }));
+
+    return res.json({ success: true, signatures: enriched });
+  } catch (err) {
+    console.error('Error al obtener mi galería de firmas:', err);
+    return res.status(500).json({ error: 'Error al consultar la galería de firmas.' });
+  }
+});
+
+// DELETE /api/signatures/:id - Eliminar imagen/GIF de firma
+router.delete('/:id', requireAuth, async (req, res) => {
+  try {
+    const signature = await db.getSignature(req.params.id);
+    if (!signature) {
+      return res.status(404).json({ error: 'Firma no encontrada.' });
+    }
+
+    const isOwner = signature.user_id === req.user.id;
+    const isSuperAdmin = req.user.role === 'superadmin';
+
+    if (!isOwner && !isSuperAdmin) {
+      return res.status(403).json({ error: 'No tienes permiso para eliminar esta firma.' });
+    }
+
+    const filePath = path.join(config.paths.uploadsSignatures, signature.filename);
+    deleteFileSafe(filePath);
+    await db.deleteSignature(signature.id);
+
+    return res.json({ success: true, message: 'Firma eliminada de la galería correctamente.' });
+  } catch (err) {
+    console.error('Error al eliminar firma:', err);
+    return res.status(500).json({ error: 'Error al eliminar la firma.' });
   }
 });
 

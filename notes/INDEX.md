@@ -16,6 +16,7 @@ Sistema interno para colaboradores de la empresa que resuelve:
 ---
 
 ## Historial de Cambios y Sesiones
+- [[notes/cambios/2026-09-18-modulo-mi-galeria-historial|2026-09-18 - Módulo Mi Galería e Historial de archivos y firmas]]
 - [[notes/cambios/2026-09-18-autenticacion-superadmin-dominio|2026-09-18 - Autenticación exclusiva, aprobación por SuperAdmin y dominio SekaiTech]]
 - [[notes/cambios/2026-09-18-implementacion-sistema-completo|2026-09-18 - Plan e implementación del sistema completo Drive BillonMail]]
 - [[notes/cambios/2026-09-18-plantillas-frontend|2026-09-18 - Creación de 3 plantillas HTML de diseño frontend anti-IA]]

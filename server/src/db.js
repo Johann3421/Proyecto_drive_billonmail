@@ -32,6 +32,7 @@ export async function initDb() {
     await client.query(`
       CREATE TABLE IF NOT EXISTS transfers (
         id VARCHAR(64) PRIMARY KEY,
+        user_id VARCHAR(64),
         original_name TEXT NOT NULL,
         stored_name TEXT NOT NULL,
         mime_type VARCHAR(120),
@@ -41,16 +42,22 @@ export async function initDb() {
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
 
+      ALTER TABLE transfers ADD COLUMN IF NOT EXISTS user_id VARCHAR(64);
       CREATE INDEX IF NOT EXISTS idx_transfers_expires_at ON transfers (expires_at);
+      CREATE INDEX IF NOT EXISTS idx_transfers_user_id ON transfers (user_id);
 
       CREATE TABLE IF NOT EXISTS signatures (
         id VARCHAR(64) PRIMARY KEY,
+        user_id VARCHAR(64),
         filename TEXT NOT NULL,
         original_name TEXT NOT NULL,
         mime_type VARCHAR(120),
         size_bytes BIGINT NOT NULL,
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
+
+      ALTER TABLE signatures ADD COLUMN IF NOT EXISTS user_id VARCHAR(64);
+      CREATE INDEX IF NOT EXISTS idx_signatures_user_id ON signatures (user_id);
 
       CREATE TABLE IF NOT EXISTS users (
         id VARCHAR(64) PRIMARY KEY,
@@ -107,16 +114,16 @@ async function seedSuperAdmin() {
 
 export const db = {
   // --- Transfers ---
-  async saveTransfer({ id, original_name, stored_name, mime_type, size_bytes, expires_at }) {
+  async saveTransfer({ id, user_id = null, original_name, stored_name, mime_type, size_bytes, expires_at }) {
     if (isPgConnected && pool) {
       const res = await pool.query(
-        `INSERT INTO transfers (id, original_name, stored_name, mime_type, size_bytes, expires_at)
-         VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-        [id, original_name, stored_name, mime_type, size_bytes, expires_at]
+        `INSERT INTO transfers (id, user_id, original_name, stored_name, mime_type, size_bytes, expires_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+        [id, user_id, original_name, stored_name, mime_type, size_bytes, expires_at]
       );
       return res.rows[0];
     }
-    const item = { id, original_name, stored_name, mime_type, size_bytes, expires_at, downloads_count: 0, created_at: new Date() };
+    const item = { id, user_id, original_name, stored_name, mime_type, size_bytes, expires_at, downloads_count: 0, created_at: new Date() };
     localMemoryStore.transfers.set(id, item);
     return item;
   },
@@ -127,6 +134,20 @@ export const db = {
       return res.rows[0] || null;
     }
     return localMemoryStore.transfers.get(id) || null;
+  },
+
+  async getUserTransfers(userId, isAll = false) {
+    if (isPgConnected && pool) {
+      if (isAll) {
+        const res = await pool.query('SELECT * FROM transfers ORDER BY created_at DESC');
+        return res.rows;
+      }
+      const res = await pool.query('SELECT * FROM transfers WHERE user_id = $1 ORDER BY created_at DESC', [userId]);
+      return res.rows;
+    }
+    return Array.from(localMemoryStore.transfers.values())
+      .filter(t => isAll || t.user_id === userId)
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   },
 
   async incrementDownloads(id) {
@@ -160,16 +181,16 @@ export const db = {
   },
 
   // --- Signatures ---
-  async saveSignature({ id, filename, original_name, mime_type, size_bytes }) {
+  async saveSignature({ id, user_id = null, filename, original_name, mime_type, size_bytes }) {
     if (isPgConnected && pool) {
       const res = await pool.query(
-        `INSERT INTO signatures (id, filename, original_name, mime_type, size_bytes)
-         VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-        [id, filename, original_name, mime_type, size_bytes]
+        `INSERT INTO signatures (id, user_id, filename, original_name, mime_type, size_bytes)
+         VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+        [id, user_id, filename, original_name, mime_type, size_bytes]
       );
       return res.rows[0];
     }
-    const item = { id, filename, original_name, mime_type, size_bytes, created_at: new Date() };
+    const item = { id, user_id, filename, original_name, mime_type, size_bytes, created_at: new Date() };
     localMemoryStore.signatures.set(id, item);
     return item;
   },
@@ -180,6 +201,28 @@ export const db = {
       return res.rows[0] || null;
     }
     return localMemoryStore.signatures.get(id) || null;
+  },
+
+  async getUserSignatures(userId, isAll = false) {
+    if (isPgConnected && pool) {
+      if (isAll) {
+        const res = await pool.query('SELECT * FROM signatures ORDER BY created_at DESC');
+        return res.rows;
+      }
+      const res = await pool.query('SELECT * FROM signatures WHERE user_id = $1 ORDER BY created_at DESC', [userId]);
+      return res.rows;
+    }
+    return Array.from(localMemoryStore.signatures.values())
+      .filter(s => isAll || s.user_id === userId)
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  },
+
+  async deleteSignature(id) {
+    if (isPgConnected && pool) {
+      await pool.query('DELETE FROM signatures WHERE id = $1', [id]);
+      return;
+    }
+    localMemoryStore.signatures.delete(id);
   },
 
   async getRecentSignatures(limit = 10) {

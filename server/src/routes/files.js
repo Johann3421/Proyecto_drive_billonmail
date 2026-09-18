@@ -26,6 +26,8 @@ const upload = multer({
   limits: { fileSize: config.maxFileSizeMb * 1024 * 1024 }
 });
 
+import { deleteFileSafe } from '../storage.js';
+
 // POST /api/files/upload (Protegido con requireAuth)
 router.post('/upload', requireAuth, upload.single('file'), async (req, res) => {
   try {
@@ -39,6 +41,7 @@ router.post('/upload', requireAuth, upload.single('file'), async (req, res) => {
 
     const transfer = await db.saveTransfer({
       id,
+      user_id: req.user.id,
       original_name: req.file.originalname,
       stored_name: req.file.filename,
       mime_type: req.file.mimetype,
@@ -64,6 +67,65 @@ router.post('/upload', requireAuth, upload.single('file'), async (req, res) => {
   } catch (err) {
     console.error('Error al subir archivo:', err);
     return res.status(500).json({ error: 'Error al procesar la subida del archivo.' });
+  }
+});
+
+// GET /api/files/my - Historial de archivos del usuario (o todos si es SuperAdmin y solicita ?all=true)
+router.get('/my', requireAuth, async (req, res) => {
+  try {
+    const isAll = req.query.all === 'true' && req.user.role === 'superadmin';
+    const list = await db.getUserTransfers(req.user.id, isAll);
+
+    const enriched = list.map((t) => {
+      const isExpired = new Date(t.expires_at) < new Date();
+      const diffMs = new Date(t.expires_at) - new Date();
+      const daysRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+
+      return {
+        id: t.id,
+        originalName: t.original_name,
+        sizeBytes: t.size_bytes,
+        mimeType: t.mime_type,
+        createdAt: t.created_at,
+        expiresAt: t.expires_at,
+        downloadsCount: t.downloads_count,
+        isExpired,
+        daysRemaining,
+        shareUrl: `${config.appUrl}/v/${t.id}`,
+        directDownloadUrl: `${config.appUrl}/api/files/${t.id}/download`
+      };
+    });
+
+    return res.json({ success: true, files: enriched });
+  } catch (err) {
+    console.error('Error al obtener mis archivos:', err);
+    return res.status(500).json({ error: 'Error al obtener el historial de archivos.' });
+  }
+});
+
+// DELETE /api/files/:id - Eliminar transferencia antes de tiempo
+router.delete('/:id', requireAuth, async (req, res) => {
+  try {
+    const transfer = await db.getTransfer(req.params.id);
+    if (!transfer) {
+      return res.status(404).json({ error: 'Archivo no encontrado.' });
+    }
+
+    const isOwner = transfer.user_id === req.user.id;
+    const isSuperAdmin = req.user.role === 'superadmin';
+
+    if (!isOwner && !isSuperAdmin) {
+      return res.status(403).json({ error: 'No tienes permiso para eliminar este archivo.' });
+    }
+
+    const filePath = path.join(config.paths.uploadsFiles, transfer.stored_name);
+    deleteFileSafe(filePath);
+    await db.deleteTransfer(transfer.id);
+
+    return res.json({ success: true, message: 'Archivo eliminado correctamente.' });
+  } catch (err) {
+    console.error('Error al eliminar archivo:', err);
+    return res.status(500).json({ error: 'Error al eliminar el archivo.' });
   }
 });
 
