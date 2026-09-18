@@ -17,10 +17,12 @@
 
 ---
 
-## Verificación
+## Verificación y Despliegue
 - Compilación Vite cliente: Exitosa en 1.26s hacia `server/public`.
 - Prueba endpoints: `/api/health`, `/api/signatures/recent`, `/` (React SPA) respondiendo con HTTP 200.
 - Modo resiliente verificado ante ausencia o fallo de credenciales locales de PostgreSQL.
+- Repositorio remoto configurado y subido a GitHub: `https://github.com/Johann3421/Proyecto_drive_billonmail.git` (rama `main`).
+- Listo para conectar en Dokploy mediante webhook o selección de repositorio.
 
 ---
 
