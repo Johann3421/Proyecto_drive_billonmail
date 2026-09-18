@@ -29,6 +29,7 @@ Para evitar colisiones con otros 14 proyectos preexistentes en el VPS:
 - Compilación Vite cliente: Exitosa en 1.26s hacia `server/public`.
 - Prueba endpoints: `/api/health`, `/api/signatures/recent`, `/` (React SPA) respondiendo con HTTP 200.
 - Modo resiliente verificado ante ausencia o fallo de credenciales locales de PostgreSQL.
+- Configuración de `docker-compose.yml` ajustada con la red externa `dokploy-network` requerida por el proxy inverso Traefik de Dokploy.
 - Repositorio remoto configurado y subido a GitHub: `https://github.com/Johann3421/Proyecto_drive_billonmail.git` (rama `main`).
 - Listo para conectar en Dokploy mediante webhook o selección de repositorio.
 
