@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function AdminPanel({ token, onToast }) {
+export default function AdminPanel({ token, onToast, onPendingCountChange }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoadingId, setActionLoadingId] = useState(null);
@@ -15,6 +15,9 @@ export default function AdminPanel({ token, onToast }) {
         setLoading(false);
         if (data.success) {
           setUsers(data.users);
+          if (onPendingCountChange) {
+            onPendingCountChange(data.users.filter((u) => u.status === 'pending').length);
+          }
         }
       })
       .catch((err) => {
@@ -43,9 +46,13 @@ export default function AdminPanel({ token, onToast }) {
 
       if (data.success) {
         onToast(`Usuario ${newStatus === 'approved' ? 'aprobado' : 'actualizado'} con éxito.`);
-        setUsers((prev) =>
-          prev.map((u) => (u.id === userId ? { ...u, status: newStatus } : u))
-        );
+        setUsers((prev) => {
+          const updated = prev.map((u) => (u.id === userId ? { ...u, status: newStatus } : u));
+          if (onPendingCountChange) {
+            onPendingCountChange(updated.filter((u) => u.status === 'pending').length);
+          }
+          return updated;
+        });
       } else {
         alert(data.error || 'Error al actualizar usuario');
       }

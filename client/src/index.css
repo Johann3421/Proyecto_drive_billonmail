@@ -43,10 +43,21 @@ body {
 header.app-header {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding: 0.875rem 2rem;
+  padding: 0.75rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  gap: 1.5rem;
+}
+
+.header-brand-nav {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
 }
 
 .brand {
@@ -56,6 +67,8 @@ header.app-header {
   font-weight: 700;
   font-size: 1.05rem;
   letter-spacing: -0.01em;
+  cursor: pointer;
+  user-select: none;
 }
 
 .brand-badge {
@@ -68,12 +81,110 @@ header.app-header {
   border: 1px solid var(--border);
 }
 
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.nav-btn:hover {
+  background: #f1f5f9;
+  color: var(--text);
+}
+
+.nav-btn.active {
+  background: #f1f5f9;
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.nav-btn-admin {
+  color: #b45309;
+}
+
+.nav-btn-admin:hover {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.nav-btn-admin.active {
+  background: #fef3c7;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+.nav-badge {
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  line-height: 1.2;
+}
+
+.header-user-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .user-pill {
   font-size: 0.85rem;
   color: var(--text-muted);
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.badge-admin {
+  background: #0f172a;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.btn-logout {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-logout:hover {
+  background: #f1f5f9;
+  color: var(--text);
+}
+
+.upload-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 /* Main Container */
@@ -457,3 +568,38 @@ main.app-main {
   display: block;
   max-height: 450px;
 }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  header.app-header {
+    padding: 0.75rem 1rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .header-brand-nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .header-nav {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .header-user-actions {
+    justify-content: space-between;
+    border-top: 1px solid var(--border);
+    padding-top: 0.5rem;
+  }
+
+  .upload-header-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
