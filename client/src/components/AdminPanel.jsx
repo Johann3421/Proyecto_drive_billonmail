@@ -66,7 +66,7 @@ export default function AdminPanel({ token, onToast, onPendingCountChange }) {
 
   return (
     <div className="card">
-      <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
           <h2>Gestión de Usuarios y Aprobaciones</h2>
           <p>Como SuperAdmin, autorizas o rechazas qué colaboradores pueden acceder al portal de envíos y firmas.</p>
@@ -84,16 +84,7 @@ export default function AdminPanel({ token, onToast, onPendingCountChange }) {
         </button>
       </div>
 
-      <div style={{
-        display: 'flex',
-        gap: '1rem',
-        marginBottom: '1.5rem',
-        padding: '0.75rem 1rem',
-        background: '#f8fafc',
-        borderRadius: '8px',
-        border: '1px solid var(--border)',
-        fontSize: '0.85rem'
-      }}>
+      <div className="admin-stats-bar">
         <div>Total registrados: <strong>{users.length}</strong></div>
         <div style={{ color: pendingCount > 0 ? '#b45309' : 'inherit' }}>
           Pendientes de aprobación: <strong>{pendingCount}</strong>
@@ -105,15 +96,15 @@ export default function AdminPanel({ token, onToast, onPendingCountChange }) {
           Cargando usuarios...
         </div>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+        <div className="table-responsive">
+          <table className="data-table">
             <thead>
-              <tr style={{ background: '#f8fafc', borderBottom: '1px solid var(--border)' }}>
-                <th style={{ textAlign: 'left', padding: '0.75rem 1rem' }}>Colaborador</th>
-                <th style={{ textAlign: 'left', padding: '0.75rem 1rem' }}>Correo</th>
-                <th style={{ textAlign: 'left', padding: '0.75rem 1rem' }}>Rol</th>
-                <th style={{ textAlign: 'left', padding: '0.75rem 1rem' }}>Estado</th>
-                <th style={{ textAlign: 'right', padding: '0.75rem 1rem' }}>Acciones</th>
+              <tr>
+                <th style={{ textAlign: 'left' }}>Colaborador</th>
+                <th style={{ textAlign: 'left' }}>Correo</th>
+                <th style={{ textAlign: 'left' }}>Rol</th>
+                <th style={{ textAlign: 'left' }}>Estado</th>
+                <th style={{ textAlign: 'right' }}>Acciones</th>
               </tr>
             </thead>
             <tbody>

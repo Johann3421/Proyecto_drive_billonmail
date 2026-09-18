@@ -118,30 +118,10 @@ export default function GalleryHistory({ token, user, onToast }) {
       </div>
 
       {/* Selector de sub-vista */}
-      <div style={{
-        display: 'flex',
-        background: '#f1f5f9',
-        padding: '3px',
-        borderRadius: '8px',
-        marginBottom: '1.5rem',
-        width: 'fit-content'
-      }}>
+      <div className="gallery-toggle-bar">
         <button
           onClick={() => setSubView('signatures')}
-          style={{
-            padding: '0.5rem 1rem',
-            border: 'none',
-            background: subView === 'signatures' ? '#ffffff' : 'transparent',
-            color: subView === 'signatures' ? '#0f172a' : 'var(--text-muted)',
-            fontWeight: 600,
-            fontSize: '0.85rem',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            boxShadow: subView === 'signatures' ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem'
-          }}
+          className={`gallery-toggle-btn ${subView === 'signatures' ? 'active' : ''}`}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="3" y="3" width="18" height="18" rx="2" />
@@ -153,20 +133,7 @@ export default function GalleryHistory({ token, user, onToast }) {
 
         <button
           onClick={() => setSubView('files')}
-          style={{
-            padding: '0.5rem 1rem',
-            border: 'none',
-            background: subView === 'files' ? '#ffffff' : 'transparent',
-            color: subView === 'files' ? '#0f172a' : 'var(--text-muted)',
-            fontWeight: 600,
-            fontSize: '0.85rem',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            boxShadow: subView === 'files' ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem'
-          }}
+          className={`gallery-toggle-btn ${subView === 'files' ? 'active' : ''}`}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -189,15 +156,11 @@ export default function GalleryHistory({ token, user, onToast }) {
               Aún no has subido ninguna imagen o GIF de firma a tu galería.
             </p>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              Sube tus firmas en la pestaña "2. Subir Imágenes y GIFs" y aparecerán aquí automáticamente.
+              Sube tus firmas en la pestaña "Firmas & GIFs para Correos" y aparecerán aquí automáticamente.
             </span>
           </div>
         ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: '1.25rem'
-          }}>
+          <div className="gallery-grid">
             {signatures.map((sig) => (
               <div
                 key={sig.id}
@@ -323,30 +286,30 @@ export default function GalleryHistory({ token, user, onToast }) {
             </span>
           </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+          <div className="table-responsive">
+            <table className="data-table">
               <thead>
-                <tr style={{ background: '#f8fafc', borderBottom: '1px solid var(--border)' }}>
-                  <th style={{ textAlign: 'left', padding: '0.75rem 1rem' }}>Archivo</th>
-                  <th style={{ textAlign: 'left', padding: '0.75rem 1rem' }}>Tamaño</th>
-                  <th style={{ textAlign: 'left', padding: '0.75rem 1rem' }}>Caducidad</th>
-                  <th style={{ textAlign: 'left', padding: '0.75rem 1rem' }}>Descargas</th>
-                  <th style={{ textAlign: 'right', padding: '0.75rem 1rem' }}>Acciones</th>
+                <tr>
+                  <th style={{ textAlign: 'left' }}>Archivo</th>
+                  <th style={{ textAlign: 'left' }}>Tamaño</th>
+                  <th style={{ textAlign: 'left' }}>Caducidad</th>
+                  <th style={{ textAlign: 'left' }}>Descargas</th>
+                  <th style={{ textAlign: 'right' }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {files.map((file) => (
-                  <tr key={file.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td style={{ padding: '0.75rem 1rem' }}>
+                  <tr key={file.id}>
+                    <td>
                       <div style={{ fontWeight: 600, color: '#0f172a' }}>{file.originalName}</div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                         Subido el: {new Date(file.createdAt).toLocaleDateString()}
                       </div>
                     </td>
-                    <td style={{ padding: '0.75rem 1rem', color: '#334155' }}>
+                    <td style={{ color: '#334155' }}>
                       {formatSize(file.sizeBytes)}
                     </td>
-                    <td style={{ padding: '0.75rem 1rem' }}>
+                    <td>
                       <span style={{
                         fontSize: '0.75rem',
                         fontWeight: 600,
@@ -358,10 +321,10 @@ export default function GalleryHistory({ token, user, onToast }) {
                         {file.isExpired ? 'Caducado' : `${file.daysRemaining} días restantes`}
                       </span>
                     </td>
-                    <td style={{ padding: '0.75rem 1rem', color: '#64748b' }}>
+                    <td style={{ color: '#64748b' }}>
                       {file.downloadsCount} descargas
                     </td>
-                    <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
+                    <td style={{ textAlign: 'right' }}>
                       <div style={{ display: 'inline-flex', gap: '0.4rem', alignItems: 'center' }}>
                         <button
                           onClick={() => copyText(file.shareUrl, 'Enlace de correo')}
@@ -421,25 +384,8 @@ export default function GalleryHistory({ token, user, onToast }) {
 
       {/* Modal para ver todos los formatos de enlace de una firma */}
       {selectedSig && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(15,23,42,0.6)',
-          backdropFilter: 'blur(2px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '1.5rem',
-          zIndex: 1000
-        }}>
-          <div style={{
-            background: '#ffffff',
-            borderRadius: '12px',
-            maxWidth: '650px',
-            width: '100%',
-            padding: '1.75rem',
-            boxShadow: '0 20px 25px -5px rgba(0,0,0,0.2)'
-          }}>
+        <div className="modal-overlay">
+          <div className="modal-content">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Enlaces para: {selectedSig.originalName}</h3>
               <button onClick={() => setSelectedSig(null)} style={{ background: 'none', border: 'none', fontSize: '1.4rem', cursor: 'pointer' }}>
@@ -452,7 +398,7 @@ export default function GalleryHistory({ token, user, onToast }) {
                 <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#475569', marginBottom: '0.2rem' }}>
                   Enlace directo (.gif / .png)
                 </label>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div className="modal-input-row">
                   <input type="text" readOnly value={selectedSig.directUrl} className="link-input" />
                   <button className="btn-action" onClick={() => copyText(selectedSig.directUrl, 'Enlace directo')}>Copiar</button>
                 </div>
@@ -462,7 +408,7 @@ export default function GalleryHistory({ token, user, onToast }) {
                 <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#475569', marginBottom: '0.2rem' }}>
                   Código HTML para correo / web
                 </label>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div className="modal-input-row">
                   <input type="text" readOnly value={selectedSig.htmlCode} className="link-input" />
                   <button className="btn-action" onClick={() => copyText(selectedSig.htmlCode, 'Código HTML')}>Copiar</button>
                 </div>
@@ -472,7 +418,7 @@ export default function GalleryHistory({ token, user, onToast }) {
                 <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#475569', marginBottom: '0.2rem' }}>
                   HTML con hipervínculo cliqueable
                 </label>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div className="modal-input-row">
                   <input type="text" readOnly value={selectedSig.htmlWithLink} className="link-input" />
                   <button className="btn-action" onClick={() => copyText(selectedSig.htmlWithLink, 'HTML con enlace')}>Copiar</button>
                 </div>
@@ -482,7 +428,7 @@ export default function GalleryHistory({ token, user, onToast }) {
                 <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#475569', marginBottom: '0.2rem' }}>
                   Markdown
                 </label>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div className="modal-input-row">
                   <input type="text" readOnly value={selectedSig.markdown} className="link-input" />
                   <button className="btn-action" onClick={() => copyText(selectedSig.markdown, 'Markdown')}>Copiar</button>
                 </div>

@@ -54,15 +54,7 @@ export default function AuthModal({ onLoginSuccess }) {
   };
 
   return (
-    <div style={{
-      maxWidth: '440px',
-      margin: '4rem auto',
-      background: 'var(--surface)',
-      border: '1px solid var(--border)',
-      borderRadius: '12px',
-      padding: '2.25rem',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
-    }}>
+    <div className="auth-card">
       <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
         <div style={{
           display: 'inline-flex',
