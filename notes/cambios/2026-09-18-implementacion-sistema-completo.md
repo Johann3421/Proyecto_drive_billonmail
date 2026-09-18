@@ -17,6 +17,14 @@
 
 ---
 
+## Configuración de Red y Puertos (+14)
+Para evitar colisiones con otros 14 proyectos preexistentes en el VPS:
+- **Puerto de la Aplicación (Express / Dokploy):** `3014` (antes 3000)
+- **Puerto de Desarrollo Vite:** `5187` (antes 5173)
+- **Puerto PostgreSQL:** `5446` (antes 5432)
+
+---
+
 ## Verificación y Despliegue
 - Compilación Vite cliente: Exitosa en 1.26s hacia `server/public`.
 - Prueba endpoints: `/api/health`, `/api/signatures/recent`, `/` (React SPA) respondiendo con HTTP 200.

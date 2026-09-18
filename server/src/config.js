@@ -9,10 +9,10 @@ const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 
 export const config = {
-  port: parseInt(process.env.PORT || '3000', 10),
+  port: parseInt(process.env.PORT || '3014', 10),
   nodeEnv: process.env.NODE_ENV || 'development',
-  appUrl: (process.env.APP_URL || `http://localhost:${process.env.PORT || 3000}`).replace(/\/+$/, ''),
-  databaseUrl: process.env.DATABASE_URL || 'postgresql://postgres:postgrespassword@localhost:5432/drive_billonmail',
+  appUrl: (process.env.APP_URL || `http://localhost:${process.env.PORT || 3014}`).replace(/\/+$/, ''),
+  databaseUrl: process.env.DATABASE_URL || 'postgresql://postgres:postgrespassword@localhost:5446/drive_billonmail',
   maxFileSizeMb: parseInt(process.env.MAX_FILE_SIZE_MB || '2048', 10),
   defaultRetentionDays: parseInt(process.env.DEFAULT_RETENTION_DAYS || '15', 10),
   paths: {

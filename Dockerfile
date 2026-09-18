@@ -17,7 +17,7 @@ FROM node:22-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=3014
 
 # Dependencias del servidor
 COPY server/package*.json ./server/
@@ -32,7 +32,7 @@ COPY --from=client-builder /app/server/public ./server/public
 # Carpetas para uploads
 RUN mkdir -p /app/server/uploads/files /app/server/uploads/signatures
 
-EXPOSE 3000
+EXPOSE 3014
 
 WORKDIR /app/server
 CMD ["node", "src/index.js"]

@@ -26,14 +26,14 @@ Copia `.env.example` a `.env`:
 ```bash
 cp .env.example .env
 ```
-*(Si no tienes PostgreSQL encendido en tu máquina local, el backend iniciará en modo desarrollo resiliente sin interrumpir tu flujo).*
+*(Puertos desplazados +14 para evitar colisiones con otros proyectos: App en `3014`, Vite en `5187`, PostgreSQL en `5446`).*
 
 ### 3. Ejecutar en modo desarrollo
-* **Servidor backend (puerto 3000):**
+* **Servidor backend (puerto 3014):**
   ```bash
   npm run dev:server
   ```
-* **Cliente Vite con recarga rápida (puerto 5173):**
+* **Cliente Vite con recarga rápida (puerto 5187):**
   ```bash
   npm run dev:client
   ```
@@ -46,7 +46,7 @@ cp .env.example .env
 1. En Dokploy, crea una nueva **Application** conectada a tu repositorio GitHub.
 2. Selecciona Build Type: **Dockerfile**.
 3. En la pestaña **Environment**, define:
-   - `PORT=3000`
+   - `PORT=3014`
    - `APP_URL=https://tu-dominio.com`
    - `DATABASE_URL=postgresql://usuario:pass@postgres_host:5432/drive_billonmail`
 4. En la pestaña **Volumes**, mapea para no perder archivos en cada despliegue:
