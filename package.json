@@ -1,0 +1,17 @@
+{
+  "name": "drive-billonmail",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sistema de transferencia de archivos grandes y alojamiento de firmas corporativas para BillonMail",
+  "scripts": {
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "dev": "npm --prefix server run dev",
+    "build:client": "npm --prefix client run build",
+    "start": "npm --prefix server start",
+    "postinstall": "npm --prefix server install && npm --prefix client install"
+  },
+  "keywords": ["billonmail", "drive", "file-transfer", "email-signatures"],
+  "author": "",
+  "license": "ISC"
+}

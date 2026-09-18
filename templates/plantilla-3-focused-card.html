@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BillonMail Express - Asistente de Envíos y Firmas</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --primary: #1e293b;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --text: #0f172a;
+      --muted: #64748b;
+      --success: #15803d;
+      --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.4;
+      padding: 2rem 1.5rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Header */
+    .top-header {
+      max-width: 1100px;
+      width: 100%;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-title h1 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .header-title p {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    .preview-recipient-btn {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .preview-recipient-btn:hover {
+      background: #f8fafc;
+      color: var(--text);
+    }
+
+    /* 2 Columns Cards */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      max-width: 1100px;
+      width: 100%;
+    }
+
+    @media (max-width: 860px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    .tool-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+    }
+
+    .card-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      margin-bottom: 0.75rem;
+      width: fit-content;
+    }
+    .badge-blue { background: #e0f2fe; color: #0369a1; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
+
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+    }
+    .card-desc {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Step flow */
+    .steps-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .step-item {
+      display: flex;
+      gap: 0.75rem;
+      font-size: 0.85rem;
+    }
+    .step-number {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Drop Box */
+    .upload-box {
+      border: 2px dashed #cbd5e1;
+      border-radius: 8px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      background: #f8fafc;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 1rem;
+    }
+    .upload-box:hover {
+      border-color: var(--accent);
+      background: #f0f9ff;
+    }
+
+    .btn-main {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .btn-main:hover { background: var(--accent-hover); }
+
+    .success-panel {
+      display: none;
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Form Fields */
+    .form-row {
+      margin-bottom: 0.85rem;
+    }
+    .form-row label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 0.25rem;
+    }
+    .form-row input {
+      width: 100%;
+      padding: 0.55rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+
+    .signature-card-preview {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+
+    /* Modal Recipient Preview */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      z-index: 999;
+    }
+    .modal-box {
+      background: #ffffff;
+      max-width: 600px;
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+    }
+    .modal-top {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-content {
+      padding: 2rem;
+      text-align: center;
+    }
+    .video-mock {
+      background: #0f172a;
+      height: 220px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #0f172a;
+      color: #fff;
+      padding: 0.75rem 1.25rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      display: none;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <div class="top-header">
+    <div class="header-title">
+      <h1>Asistente Corporativo para Correo BillonMail</h1>
+      <p>Diseñado para que cualquier colaborador resuelva archivos pesados y firmas en 3 clics.</p>
+    </div>
+    <button class="preview-recipient-btn" onclick="toggleModal(true)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      Ver qué verá tu cliente
+    </button>
+  </div>
+
+  <input type="file" id="picker3" style="display:none" onchange="runSimulatedUpload(this.files[0])">
+
+  <!-- 2 Big Cards Grid -->
+  <div class="main-grid">
+
+    <!-- Card 1: Large Files / Videos -->
+    <div class="tool-card">
+      <span class="card-badge badge-blue">Caso 1: Supera 10MB</span>
+      <h2 class="card-title">Enviar Video o Archivo Pesado</h2>
+      <p class="card-desc">BillonMail limita los correos a 10MB. Sube tu video aquí y pega el enlace generado en tu correo.</p>
+
+      <ul class="steps-list">
+        <li class="step-item">
+          <span class="step-number">1</span>
+          <span>Arrastra o selecciona tu archivo (MP4, PDF, ZIP de hasta 2GB).</span>
+        </li>
+        <li class="step-item">
+          <span class="step-number">2</span>
+          <span>Obtén el enlace corto corporativo que expira en 15 días.</span>
+        </li>
+        <li class="step-item">
+          <span class="step-number">3</span>
+          <span>Pégalo en el cuerpo de tu correo en BillonMail.</span>
+        </li>
+      </ul>
+
+      <div class="upload-box" onclick="document.getElementById('picker3').click()">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="1.8" style="margin-bottom:0.5rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div style="font-weight:600; font-size:0.95rem;">Haz clic para elegir el video o archivo</div>
+        <div style="font-size:0.75rem; color:#64748b; margin-top:0.25rem;">Sin límite de 10MB • Seguro y directo</div>
+      </div>
+
+      <div id="card3-success" class="success-panel">
+        <div style="font-size:0.85rem; font-weight:700; color:var(--success); margin-bottom:0.4rem;">✓ Archivo listo</div>
+        <div style="font-size:0.8rem; color:#334155; margin-bottom:0.6rem;" id="card3-fname">video_institucional.mp4 (92 MB)</div>
+        <div style="display:flex; gap:0.5rem;">
+          <input type="text" id="card3-link" readonly value="https://drive.billonmail.empresa.com/v/v8x192q" style="flex:1; padding:0.4rem 0.6rem; font-size:0.8rem; border:1px solid #86efac; border-radius:4px; font-family:monospace;">
+          <button onclick="copyCard3Link()" style="background:#16a34a; color:#fff; border:none; padding:0.4rem 0.75rem; border-radius:4px; font-size:0.8rem; font-weight:600; cursor:pointer;">Copiar</button>
+        </div>
+      </div>
+
+      <button class="btn-main" onclick="document.getElementById('picker3').click()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Subir Archivo Grande
+      </button>
+    </div>
+
+    <!-- Card 2: Signature Builder -->
+    <div class="tool-card">
+      <span class="card-badge badge-amber">Caso 2: Firma Oficial</span>
+      <h2 class="card-title">Configurar mi Footer / Firma</h2>
+      <p class="card-desc">Crea tu firma oficial estandarizada para BillonMail con el logo oficial alojado en la nube.</p>
+
+      <div class="form-row">
+        <label>Nombre y Apellido</label>
+        <input type="text" id="c3-name" value="Ricardo Palma" oninput="refreshSig3()">
+      </div>
+      <div class="form-row">
+        <label>Cargo</label>
+        <input type="text" id="c3-role" value="Asesor Comercial Senior" oninput="refreshSig3()">
+      </div>
+      <div class="form-row">
+        <label>Teléfono Celular / WhatsApp</label>
+        <input type="text" id="c3-phone" value="+51 955 444 333" oninput="refreshSig3()">
+      </div>
+
+      <!-- Preview -->
+      <div class="signature-card-preview" id="sig-export-3">
+        <table cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; font-size:12px; color:#334155; line-height: 1.35;">
+          <tr>
+            <td style="padding-right: 12px; border-right: 2px solid #0284c7; vertical-align: middle;">
+              <div style="width:65px; height:65px; background:#0284c7; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:10px; text-align:center; border-radius:4px;">
+                EMPRESA
+              </div>
+            </td>
+            <td style="padding-left: 12px; vertical-align: middle;">
+              <div id="c3-prev-name" style="font-size:13px; font-weight:bold; color:#0f172a;">Ricardo Palma</div>
+              <div id="c3-prev-role" style="color:#0284c7; font-weight:600;">Asesor Comercial Senior</div>
+              <div id="c3-prev-phone" style="color:#64748b;">Móvil: +51 955 444 333</div>
+              <div style="color:#94a3b8; font-size:11px;">www.empresa.com</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <button class="btn-main" style="background:#0f172a;" onclick="copySig3()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>
+        Copiar Firma al Portapapeles
+      </button>
+      <div style="font-size:0.75rem; color:var(--muted); text-align:center; margin-top:0.5rem;">
+        Luego entra a BillonMail > Opciones > Firmas y pega con <code>Ctrl + V</code>.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Modal simulating what the recipient sees -->
+  <div id="recipient-modal" class="modal-backdrop">
+    <div class="modal-box">
+      <div class="modal-top">
+        <strong style="font-size:0.95rem;">Así verá tu cliente el enlace en su navegador</strong>
+        <button onclick="toggleModal(false)" style="background:none; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
+      </div>
+      <div class="modal-content">
+        <div style="font-size:0.75rem; text-transform:uppercase; color:#64748b; font-weight:700; margin-bottom:0.5rem;">
+          Portal de Descargas Corporativo
+        </div>
+        <h3 style="font-size:1.2rem; margin-bottom:0.25rem;">video_capacitacion_sistema.mp4</h3>
+        <p style="font-size:0.8rem; color:#64748b; margin-bottom:1.5rem;">Enviado por: colaborador@empresa.com • Tamaño: 92.4 MB • Expira en 14 días</p>
+
+        <div class="video-mock">
+          <div style="text-align:center;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+            <div style="margin-top:0.5rem;">Reproductor de Video Online</div>
+          </div>
+        </div>
+
+        <button class="btn-main" style="background:#16a34a;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar Archivo Original
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">Notificación</div>
+
+  <script>
+    function toggleModal(show) {
+      document.getElementById('recipient-modal').style.display = show ? 'flex' : 'none';
+    }
+
+    function runSimulatedUpload(file) {
+      if (!file) return;
+      showToast('Subiendo archivo...');
+      setTimeout(() => {
+        document.getElementById('card3-success').style.display = 'block';
+        document.getElementById('card3-fname').innerText = `${file.name} (${(file.size / (1024*1024)).toFixed(1)} MB)`;
+        showToast('¡Archivo listo! Enlace generado.');
+      }, 700);
+    }
+
+    function copyCard3Link() {
+      const val = document.getElementById('card3-link').value;
+      navigator.clipboard.writeText(val).then(() => {
+        showToast('Enlace copiado. Pégalo en tu correo de BillonMail.');
+      });
+    }
+
+    function refreshSig3() {
+      document.getElementById('c3-prev-name').innerText = document.getElementById('c3-name').value || 'Nombre';
+      document.getElementById('c3-prev-role').innerText = document.getElementById('c3-role').value || 'Cargo';
+      document.getElementById('c3-prev-phone').innerText = 'Móvil: ' + (document.getElementById('c3-phone').value || '-');
+    }
+
+    function copySig3() {
+      const container = document.getElementById('sig-export-3');
+      const html = container.innerHTML;
+      const blobHtml = new Blob([html], { type: 'text/html' });
+      const blobText = new Blob([container.innerText], { type: 'text/plain' });
+      const item = new ClipboardItem({
+        'text/html': blobHtml,
+        'text/plain': blobText
+      });
+      navigator.clipboard.write([item]).then(() => {
+        showToast('Firma copiada. Ve a BillonMail y pégala con Ctrl+V.');
+      });
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 3000);
+    }
+  </script>
+</body>
+</html>

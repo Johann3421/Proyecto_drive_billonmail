@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BillonMail Portal - Consola Corporativa</title>
+  <style>
+    :root {
+      --sidebar-bg: #0f172a;
+      --sidebar-text: #94a3b8;
+      --sidebar-text-active: #ffffff;
+      --sidebar-hover: #1e293b;
+      --main-bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --primary: #0f172a; /* Neutral slate dark */
+      --accent: #2563eb;
+      --success-badge-bg: #ecfdf5;
+      --success-badge-text: #065f46;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background: var(--main-bg);
+      color: var(--text-dark);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Sidebar */
+    aside {
+      width: 250px;
+      background: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      border-right: 1px solid #1e293b;
+    }
+    .brand {
+      padding: 1.25rem 1.5rem;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border-bottom: 1px solid #1e293b;
+    }
+    .brand-tag {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      background: #334155;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #cbd5e1;
+    }
+    .nav-list {
+      list-style: none;
+      padding: 1rem 0.75rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .nav-item button {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: none;
+      color: var(--sidebar-text);
+      padding: 0.65rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .nav-item button:hover {
+      background: var(--sidebar-hover);
+      color: var(--sidebar-text-active);
+    }
+    .nav-item button.active {
+      background: #1e293b;
+      color: #ffffff;
+      font-weight: 600;
+    }
+    .sidebar-footer {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid #1e293b;
+      font-size: 0.78rem;
+      color: #64748b;
+    }
+    .storage-meter {
+      background: #1e293b;
+      height: 6px;
+      border-radius: 3px;
+      margin-top: 0.5rem;
+      overflow: hidden;
+    }
+    .storage-used {
+      background: var(--accent);
+      width: 22%;
+      height: 100%;
+    }
+
+    /* Main Area */
+    .viewport {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .page-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+    .btn-create {
+      background: #0f172a;
+      color: #ffffff;
+      border: none;
+      padding: 0.55rem 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .btn-create:hover {
+      background: #334155;
+    }
+
+    .content-body {
+      padding: 2rem;
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    .section-view { display: none; }
+    .section-view.active { display: block; }
+
+    /* Tables and Cards */
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+    .card-title-bar {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-title-bar h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    /* Quick Upload Box inside dashboard */
+    .quick-upload-strip {
+      background: #ffffff;
+      border: 1px dashed #cbd5e1;
+      border-radius: 8px;
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.75rem;
+    }
+    .strip-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .strip-icon {
+      width: 42px;
+      height: 42px;
+      background: #f1f5f9;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #334155;
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+    th {
+      background: #f8fafc;
+      padding: 0.75rem 1.25rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 0.85rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafafa; }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-active {
+      background: #ecfdf5;
+      color: #047857;
+    }
+    .badge-expiring {
+      background: #fffbeb;
+      color: #b45343;
+    }
+
+    .btn-table-action {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      padding: 0.35rem 0.75rem;
+      border-radius: 5px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+    }
+    .btn-table-action:hover { background: #e2e8f0; }
+
+    /* Signature Module */
+    .signature-grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 1.75rem;
+    }
+    .input-box {
+      margin-bottom: 1rem;
+    }
+    .input-box label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 0.3rem;
+    }
+    .input-box input, .input-box select {
+      width: 100%;
+      padding: 0.55rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+    .preview-canvas {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+    }
+    .outlook-window {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .outlook-bar {
+      background: #e2e8f0;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.75rem;
+      color: #475569;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .outlook-body {
+      background: #ffffff;
+      padding: 1.5rem;
+      min-height: 180px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #0f172a;
+      color: #fff;
+      padding: 0.75rem 1.25rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      display: none;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside>
+    <div class="brand">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      <span>BillonMail Drive</span>
+      <span class="brand-tag">Portal</span>
+    </div>
+
+    <ul class="nav-list">
+      <li class="nav-item">
+        <button id="nav-files" class="active" onclick="showSection('files')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          Archivos & Enlaces
+        </button>
+      </li>
+      <li class="nav-item">
+        <button id="nav-signatures" onclick="showSection('signatures')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Mi Firma Corporativa
+        </button>
+      </li>
+      <li class="nav-item">
+        <button onclick="showToast('Guía para configurar firma en BillonMail')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Instructivo de Correo
+        </button>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <div>Espacio de transferencia: <strong>14.2 GB / 200 GB</strong></div>
+      <div class="storage-meter"><div class="storage-used"></div></div>
+      <div style="margin-top:0.4rem; font-size:0.7rem; color:#64748b;">Archivos expiran cada 15 días</div>
+    </div>
+  </aside>
+
+  <!-- Content -->
+  <div class="viewport">
+    <header>
+      <div class="page-title" id="top-title">Archivos Grandes y Enlaces Generados</div>
+      <div style="display:flex; gap:0.75rem;">
+        <button class="btn-create" onclick="triggerUploadPrompt()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Subir Archivo o Video
+        </button>
+      </div>
+    </header>
+
+    <input type="file" id="hidden-file-input" style="display:none" onchange="simulateUpload(this.files[0])">
+
+    <div class="content-body">
+
+      <!-- SECTION 1: Files Dashboard -->
+      <section id="section-files" class="section-view active">
+        <!-- Quick action banner -->
+        <div class="quick-upload-strip" id="drop-zone" onclick="triggerUploadPrompt()">
+          <div class="strip-left">
+            <div class="strip-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <div>
+              <div style="font-weight:600; font-size:0.95rem;">¿Tienes un video o archivo que supera los 10MB de BillonMail?</div>
+              <div style="font-size:0.82rem; color:var(--text-muted);">Arrastra el archivo aquí para obtener un enlace descargable de inmediato.</div>
+            </div>
+          </div>
+          <button class="btn-table-action" style="padding:0.6rem 1rem;">Seleccionar archivo</button>
+        </div>
+
+        <!-- Table of files -->
+        <div class="card">
+          <div class="card-title-bar">
+            <h3>Tus enlaces activos para correos</h3>
+            <span style="font-size:0.8rem; color:var(--text-muted);">Total: 3 enlaces activos</span>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Archivo</th>
+                <th>Tamaño</th>
+                <th>Fecha Subida</th>
+                <th>Estado / Expira</th>
+                <th>Descargas</th>
+                <th style="text-align:right">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="files-tbody">
+              <tr>
+                <td>
+                  <div style="font-weight:600;">video_demostracion_producto_hd.mp4</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">Enlace: /v/9bf83e1</div>
+                </td>
+                <td>84.5 MB</td>
+                <td>Hoy, 08:30 AM</td>
+                <td><span class="badge-status badge-active">Activo (14 días rest.)</span></td>
+                <td>6 vistas</td>
+                <td style="text-align:right">
+                  <button class="btn-table-action" onclick="copyTableLink('https://drive.billonmail.empresa.com/v/9bf83e1')">Copiar Enlace</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="font-weight:600;">catalogo_completo_servicios_2026.pdf</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">Enlace: /v/2x7a91c</div>
+                </td>
+                <td>38.2 MB</td>
+                <td>Ayer</td>
+                <td><span class="badge-status badge-active">Activo (13 días rest.)</span></td>
+                <td>12 vistas</td>
+                <td style="text-align:right">
+                  <button class="btn-table-action" onclick="copyTableLink('https://drive.billonmail.empresa.com/v/2x7a91c')">Copiar Enlace</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="font-weight:600;">respaldo_base_instalador.zip</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">Enlace: /v/5m1k89p</div>
+                </td>
+                <td>310.0 MB</td>
+                <td>12 Sep 2026</td>
+                <td><span class="badge-status badge-expiring">Expira pronto (2 días)</span></td>
+                <td>3 vistas</td>
+                <td style="text-align:right">
+                  <button class="btn-table-action" onclick="copyTableLink('https://drive.billonmail.empresa.com/v/5m1k89p')">Copiar Enlace</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 2: Signatures -->
+      <section id="section-signatures" class="section-view">
+        <div class="signature-grid">
+          <!-- Form -->
+          <div class="card" style="padding:1.5rem; height:fit-content;">
+            <h3 style="font-size:1rem; margin-bottom:1rem; font-weight:700;">Datos del Colaborador</h3>
+            
+            <div class="input-box">
+              <label>Nombre y Apellidos</label>
+              <input type="text" id="sig-name" value="Valeria Santillán" oninput="renderSig()">
+            </div>
+            <div class="input-box">
+              <label>Cargo</label>
+              <input type="text" id="sig-role" value="Jefe de Proyectos TI" oninput="renderSig()">
+            </div>
+            <div class="input-box">
+              <label>Teléfono Corporativo</label>
+              <input type="text" id="sig-phone" value="+51 912 345 678" oninput="renderSig()">
+            </div>
+            <div class="input-box">
+              <label>Sede / Oficina</label>
+              <select id="sig-office" onchange="renderSig()">
+                <option value="Sede Central - Lima">Sede Central - Lima</option>
+                <option value="Sede Norte - Trujillo">Sede Norte - Trujillo</option>
+                <option value="Sede Sur - Arequipa">Sede Sur - Arequipa</option>
+              </select>
+            </div>
+
+            <button class="btn-create" style="width:100%; justify-content:center; margin-top:0.5rem;" onclick="copySigRich()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>
+              Copiar Firma para Correo
+            </button>
+          </div>
+
+          <!-- Preview in mock Email Window -->
+          <div>
+            <div class="outlook-window">
+              <div class="outlook-bar">
+                <span>Simulador de Correo Saliente (BillonMail / Outlook)</span>
+              </div>
+              <div class="outlook-body">
+                <div style="font-size:0.85rem; color:#64748b; margin-bottom:1.5rem; border-bottom:1px solid #f1f5f9; padding-bottom:0.75rem;">
+                  De: <strong>vsantillan@empresa.com</strong><br>
+                  Asunto: <strong>Re: Envío de propuesta técnica</strong>
+                </div>
+
+                <p style="font-size:0.88rem; line-height:1.5; color:#334155; margin-bottom:2rem;">
+                  Estimado cliente,<br><br>
+                  Adjunto el enlace para visualizar la grabación de la sesión sin restricciones de peso: <br>
+                  <a href="#" style="color:#2563eb; text-decoration:none;">https://drive.billonmail.empresa.com/v/9bf83e1</a><br><br>
+                  Saludos cordiales,
+                </p>
+
+                <!-- Official Signature Rendering -->
+                <div id="target-signature">
+                  <table cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; font-size:13px; color:#334155;">
+                    <tr>
+                      <td style="padding-right: 14px; border-right: 2px solid #0f172a; vertical-align: middle;">
+                        <div style="width:70px; height:70px; background:#0f172a; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11px; text-align:center; border-radius:4px;">
+                          EMPRESA
+                        </div>
+                      </td>
+                      <td style="padding-left: 14px; vertical-align: middle;">
+                        <div id="live-name" style="font-size:14px; font-weight:bold; color:#0f172a;">Valeria Santillán</div>
+                        <div id="live-role" style="font-size:12px; color:#2563eb; font-weight:600;">Jefe de Proyectos TI</div>
+                        <div id="live-phone" style="font-size:12px; color:#64748b; margin-top:2px;">T: +51 912 345 678</div>
+                        <div id="live-office" style="font-size:11px; color:#94a3b8;">Sede Central - Lima</div>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+
+              </div>
+            </div>
+            <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.75rem;">
+              Las imágenes del logo se sirven desde la URL permanente corporativa para no consumir espacio en los correos del destinatario.
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <div id="toast" class="toast">Notificación</div>
+
+  <script>
+    function showSection(section) {
+      document.querySelectorAll('.section-view').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item button').forEach(b => b.classList.remove('active'));
+      
+      if (section === 'files') {
+        document.getElementById('section-files').classList.add('active');
+        document.getElementById('nav-files').classList.add('active');
+        document.getElementById('top-title').innerText = 'Archivos Grandes y Enlaces Generados';
+      } else {
+        document.getElementById('section-signatures').classList.add('active');
+        document.getElementById('nav-signatures').classList.add('active');
+        document.getElementById('top-title').innerText = 'Configuración de Firma Corporativa';
+      }
+    }
+
+    function triggerUploadPrompt() {
+      document.getElementById('hidden-file-input').click();
+    }
+
+    function simulateUpload(file) {
+      if (!file) return;
+      showToast('Subiendo ' + file.name + '...');
+      setTimeout(() => {
+        const tbody = document.getElementById('files-tbody');
+        const tr = document.createElement('tr');
+        const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+        const randomId = Math.random().toString(36).substring(2, 9);
+        tr.innerHTML = `
+          <td>
+            <div style="font-weight:600;">${file.name}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">Enlace: /v/${randomId}</div>
+          </td>
+          <td>${sizeMb} MB</td>
+          <td>Hace unos segundos</td>
+          <td><span class="badge-status badge-active">Activo (15 días rest.)</span></td>
+          <td>0 vistas</td>
+          <td style="text-align:right">
+            <button class="btn-table-action" onclick="copyTableLink('https://drive.billonmail.empresa.com/v/${randomId}')">Copiar Enlace</button>
+          </td>
+        `;
+        tbody.prepend(tr);
+        showToast('¡Archivo subido! Enlace listo para enviar.');
+      }, 800);
+    }
+
+    function copyTableLink(url) {
+      navigator.clipboard.writeText(url).then(() => {
+        showToast('Enlace copiado al portapapeles: ' + url);
+      });
+    }
+
+    function renderSig() {
+      document.getElementById('live-name').innerText = document.getElementById('sig-name').value || 'Nombre';
+      document.getElementById('live-role').innerText = document.getElementById('sig-role').value || 'Cargo';
+      document.getElementById('live-phone').innerText = 'T: ' + (document.getElementById('sig-phone').value || '-');
+      document.getElementById('live-office').innerText = document.getElementById('sig-office').value;
+    }
+
+    function copySigRich() {
+      const container = document.getElementById('target-signature');
+      const html = container.innerHTML;
+      const blobHtml = new Blob([html], { type: 'text/html' });
+      const blobText = new Blob([container.innerText], { type: 'text/plain' });
+      const item = new ClipboardItem({
+        'text/html': blobHtml,
+        'text/plain': blobText
+      });
+      navigator.clipboard.write([item]).then(() => {
+        showToast('Firma copiada. Ve a BillonMail y pégala con Ctrl+V.');
+      });
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 3000);
+    }
+  </script>
+</body>
+</html>

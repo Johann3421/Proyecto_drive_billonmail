@@ -1,0 +1,43 @@
+services:
+  app:
+  build:
+    context: .
+    dockerfile: Dockerfile
+  container_name: drive_billonmail_app
+  restart: unless-stopped
+  ports:
+    - "${PORT:-3000}:3000"
+  environment:
+    - PORT=3000
+    - NODE_ENV=production
+    - APP_URL=${APP_URL:-http://localhost:3000}
+    - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgrespassword}@postgres:5432/${POSTGRES_DB:-drive_billonmail}
+    - MAX_FILE_SIZE_MB=${MAX_FILE_SIZE_MB:-2048}
+    - DEFAULT_RETENTION_DAYS=${DEFAULT_RETENTION_DAYS:-15}
+  volumes:
+    - uploads_files:/app/server/uploads/files
+    - uploads_signatures:/app/server/uploads/signatures
+  depends_on:
+    postgres:
+      condition: service_healthy
+
+  postgres:
+  image: postgres:16-alpine
+  container_name: drive_billonmail_postgres
+  restart: unless-stopped
+  environment:
+    POSTGRES_USER: ${POSTGRES_USER:-postgres}
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgrespassword}
+    POSTGRES_DB: ${POSTGRES_DB:-drive_billonmail}
+  volumes:
+    - postgres_data:/var/lib/postgresql/data
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-drive_billonmail}"]
+    interval: 5s
+    timeout: 5s
+    retries: 5
+
+volumes:
+  uploads_files:
+  uploads_signatures:
+  postgres_data:
