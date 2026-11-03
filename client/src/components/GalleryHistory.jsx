@@ -239,20 +239,35 @@ export default function GalleryHistory({ token, user, onToast }) {
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.25rem' }}>
-                      <button
-                        onClick={() => setSelectedSig(sig)}
-                        style={{
-                          background: 'transparent',
-                          border: 'none',
-                          color: 'var(--accent)',
-                          fontSize: '0.75rem',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                          padding: 0
-                        }}
-                      >
-                        Ver todos los enlaces
-                      </button>
+                      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                        <button
+                          onClick={() => setSelectedSig(sig)}
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: 'var(--accent)',
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            padding: 0
+                          }}
+                        >
+                          Ver todos los enlaces
+                        </button>
+                        <a
+                          href={sig.viewUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{
+                            fontSize: '0.75rem',
+                            color: 'var(--text-muted)',
+                            textDecoration: 'none',
+                            fontWeight: 600
+                          }}
+                        >
+                          Visor ↗
+                        </a>
+                      </div>
 
                       <button
                         onClick={() => deleteSignature(sig.id, sig.originalName)}
@@ -394,6 +409,25 @@ export default function GalleryHistory({ token, user, onToast }) {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#475569', marginBottom: '0.2rem' }}>
+                  Enlace de visor público (página web para compartir)
+                </label>
+                <div className="modal-input-row">
+                  <input type="text" readOnly value={selectedSig.viewUrl} className="link-input" />
+                  <button className="btn-action" onClick={() => copyText(selectedSig.viewUrl, 'Enlace de visor')}>Copiar</button>
+                  <a
+                    href={selectedSig.viewUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn-action"
+                    style={{ background: '#f1f5f9', color: '#0f172a', textDecoration: 'none', border: '1px solid var(--border)' }}
+                  >
+                    Abrir ↗
+                  </a>
+                </div>
+              </div>
+
               <div>
                 <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#475569', marginBottom: '0.2rem' }}>
                   Enlace directo (.gif / .png)

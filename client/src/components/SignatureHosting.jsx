@@ -194,6 +194,16 @@ export default function SignatureHosting({ token, onToast }) {
                 </svg>
                 <span>{copiedKey === 'view' ? '¡Copiado!' : 'Copiar'}</span>
               </button>
+              <a
+                href={signatureData.viewUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="btn-copy-code"
+                style={{ textDecoration: 'none', background: '#f8fafc', borderLeft: '1px solid var(--border)' }}
+                title="Abrir visor público"
+              >
+                Ver ↗
+              </a>
             </div>
           </div>
 

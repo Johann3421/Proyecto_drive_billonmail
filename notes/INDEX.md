@@ -16,6 +16,7 @@ Sistema interno para colaboradores de la empresa que resuelve:
 ---
 
 ## Historial de Cambios y Sesiones
+- [[notes/cambios/2026-11-03-resolucion-error-compartir-firmas-logs-postgres|2026-11-03 - Resolución de error al compartir firmas/GIFs y filtrado de logs en PostgreSQL]]
 - [[notes/cambios/2026-09-18-adaptacion-responsive-multidispositivo|2026-09-18 - Adaptación responsive completa para móviles y múltiples dispositivos]]
 - [[notes/cambios/2026-09-18-redistribucion-navegacion-galeria-admin|2026-09-18 - Redistribución de navegación (separación de Galería y Aprobación de Usuarios)]]
 - [[notes/cambios/2026-09-18-modulo-mi-galeria-historial|2026-09-18 - Módulo Mi Galería e Historial de archivos y firmas]]

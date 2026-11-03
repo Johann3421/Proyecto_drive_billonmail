@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import FileTransfer from './components/FileTransfer';
 import SignatureHosting from './components/SignatureHosting';
 import RecipientView from './components/RecipientView';
+import ImageViewer from './components/ImageViewer';
 import AuthModal from './components/AuthModal';
 import AdminPanel from './components/AdminPanel';
 import GalleryHistory from './components/GalleryHistory';
@@ -13,6 +14,7 @@ export default function App() {
   const [pendingCount, setPendingCount] = useState(0);
   const [toastMessage, setToastMessage] = useState(null);
   const [recipientFileId, setRecipientFileId] = useState(null);
+  const [recipientImageId, setRecipientImageId] = useState(null);
 
   // Estado de Autenticación
   const [token, setToken] = useState(() => localStorage.getItem('drive_token'));
@@ -25,11 +27,15 @@ export default function App() {
   });
 
   useEffect(() => {
-    // Detectar si la ruta es una URL de descarga pública (/v/:id)
+    // Detectar si la ruta es una URL pública (/v/:id para archivos, /i/:id para firmas/imágenes)
     const path = window.location.pathname;
-    const match = path.match(/^\/v\/([a-zA-Z0-9_-]+)/);
-    if (match) {
-      setRecipientFileId(match[1]);
+    const fileMatch = path.match(/^\/v\/([a-zA-Z0-9_-]+)/);
+    if (fileMatch) {
+      setRecipientFileId(fileMatch[1]);
+    }
+    const imgMatch = path.match(/^\/i\/([a-zA-Z0-9_-]+)/);
+    if (imgMatch) {
+      setRecipientImageId(imgMatch[1]);
     }
   }, []);
 
@@ -115,6 +121,32 @@ export default function App() {
         </header>
 
         <RecipientView fileId={recipientFileId} />
+      </div>
+    );
+  }
+
+  // 1b. Si es la vista pública de una firma o imagen (/i/:id), NO requiere login
+  if (recipientImageId) {
+    return (
+      <div>
+        <header className="app-header">
+          <div className="brand">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+            <span>BillonMail Drive</span>
+            <span className="brand-badge">Visor de Firmas</span>
+          </div>
+          <a
+            href="/"
+            style={{ fontSize: '0.85rem', color: 'var(--accent)', textDecoration: 'none', fontWeight: 600 }}
+          >
+            Acceso Empleados
+          </a>
+        </header>
+
+        <ImageViewer imageId={recipientImageId} />
       </div>
     );
   }

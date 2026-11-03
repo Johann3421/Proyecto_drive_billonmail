@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
 import crypto from 'crypto';
 import { config } from '../config.js';
 import { db } from '../db.js';
@@ -37,23 +38,79 @@ const upload = multer({
   limits: { fileSize: 50 * 1024 * 1024 } // 50MB máximo para un GIF o imagen de firma
 });
 
-// Helper para generar los 6 formatos de enlaces estilo Postimages
+// Helper para generar los formatos de enlaces estilo Postimages
 function generateLinkFormats(filename, originalName, id) {
   const directUrl = `${config.appUrl}/uploads/firmas/${filename}`;
+  const shortDirectUrl = `${config.appUrl}/s/${id}`;
   const viewUrl = `${config.appUrl}/i/${id}`;
   const cleanName = path.basename(originalName, path.extname(originalName));
 
   return {
     directUrl,
+    shortDirectUrl,
     viewUrl,
     htmlCode: `<img src='${directUrl}' border='0' alt='${cleanName}'>`,
-    htmlWithLink: `<a href='https://empresa.com' target='_blank'><img src='${directUrl}' border='0' alt='${cleanName}'></a>`,
+    htmlWithLink: `<a href='${config.appUrl}' target='_blank'><img src='${directUrl}' border='0' alt='${cleanName}'></a>`,
     markdown: `![${cleanName}](${directUrl})`,
     bbcode: `[img]${directUrl}[/img]`
   };
 }
 
 import { deleteFileSafe } from '../storage.js';
+
+// GET /api/signatures/:id/meta - Consulta pública de metadatos para el visor
+router.get('/:id/meta', async (req, res) => {
+  try {
+    const sig = await db.getSignature(req.params.id);
+    if (!sig) {
+      return res.status(404).json({ error: 'Firma o imagen no encontrada.' });
+    }
+
+    const links = generateLinkFormats(sig.filename, sig.original_name, sig.id);
+
+    return res.json({
+      success: true,
+      signature: {
+        id: sig.id,
+        filename: sig.filename,
+        originalName: sig.original_name,
+        sizeBytes: sig.size_bytes,
+        mimeType: sig.mime_type,
+        createdAt: sig.created_at,
+        ...links
+      }
+    });
+  } catch (err) {
+    console.error('Error al consultar metadata de firma:', err);
+    return res.status(500).json({ error: 'Error del servidor al consultar la imagen.' });
+  }
+});
+
+// GET /api/signatures/:id/raw - Descarga / visualización directa
+router.get('/:id/raw', async (req, res) => {
+  try {
+    const sig = await db.getSignature(req.params.id);
+    if (!sig) {
+      return res.status(404).json({ error: 'Firma o imagen no encontrada.' });
+    }
+
+    const filePath = path.join(config.paths.uploadsSignatures, sig.filename);
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'Archivo físico no encontrado en disco.' });
+    }
+
+    res.setHeader('Content-Type', sig.mime_type || 'image/png');
+    res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(sig.original_name)}"`);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.setHeader('Cache-Control', 'public, max-age=2592000, immutable');
+
+    fs.createReadStream(filePath).pipe(res);
+  } catch (err) {
+    console.error('Error al servir firma raw:', err);
+    return res.status(500).json({ error: 'Error al servir la imagen.' });
+  }
+});
 
 // POST /api/signatures/upload
 router.post('/upload', requireAuth, upload.single('image'), async (req, res) => {
